@@ -1,0 +1,117 @@
+expressjs is most popular server side web framework in nodejs ecosystem 
+express.js is minimal and flexible node.js web appplication framework that provides a list of features for building web and mobile appplication easily.
+it simplifies the development fo server-side applications by offering an easy-to-use API routing , middleware and http utilities 
+
+build on node,js for fast and sclable server-side development 
+simplifies routing and middleware handling for web applications
+supports building rest apis , real-time application and single-page application 
+provides a lightweight structure for flexible and efficient server-side development
+
+
+
+src/
+ ├── DBconfig/
+           this folder holds configuration files related to the databases , environment , and other settings 
+		   bdconfig.js:- contains the configuration for connecting to the database , like the host , username , password 
+		   seperation of configuration :- keeps all env configuration in one place easier management
+		   environment flexibility :- allows easy switching of configuration for different en (dev,prod)
+		   database configuration:- centralizes database connection settings for better maintability 
+ ├── controllers/
+           controllers:- contain logic for each route , handling request , processing data and sending responses , this keeps routes clean and focused on http handling 
+		   business login seperation :- keeps routes focused on request handling , while the controllers manages business logic 
+		   database interaction :- interacts with models to fetch data or perform actions.
+		   error handling :- ensures that errors in data retrivel ate handled greacefully 
+ ├── databases/
+           this folder contains database connection login 
+		   database connection:- encapsulates the logic for establishing database connections. 
+		   reusability :- this file can be imported in different parts of the app to interact with the database
+		   env setup :- makes it easy to configure diff for diff environment (dev , prod)
+ ├── routes/
+           route manages HTTP requests (GET,POST,PUT,PATCH,DELETE...) and map them to controller functions 
+		   route management:- organizes route based on feature or entities 
+		   cleaner code :- seperates the routing logic from the controller logic , keeping files smaller and easier to manage  
+ ├── models/
+          models define the structure of your data and interact with database
+		  schema define:- defines the structure of the data that will be stored in the database
+		  data validation :- ensures that required fields are present before data is saved 
+		  database interaction :- provides a model to interact with mongoDB or other databases
+ ├── services/
+ ├── middlewares/
+          middleware functions are executed during the request-responses cycle , they can perform tasks like authentication , logging , or validation before the request reaches te route handler 
+		  authentication :- middleware  is used to secure routes by verfying tokens 
+		  reusable login :- can be applied to muitiple routes to handle common tasks like authenticationor loggin 
+		  flow control :- uses next() to pass control routes to the next middleware or route handler 
+ ├── utils/
+ ├── env/
+          contains env variables and configuration like apis keys , JWT secrets , etc 
+		  .env :- stores env-specific variables liek database URL or JWT token 
+		  secure storage :- sensitive data liek database credentials and secrets out if the codebase
+		  env configuration:- allows you to configuration diff settings for dev , staging , prod environment 
+ └── app.js
+
+
+use cases of expressjs application:-
+building RESTFul APIs:-
+express is commonly used to create APIs that allow clients to interact with server via standard HTTP method get,post,put,patch,delete
+serving static files:-
+express can serve static files like images , css , javascript making ideal for building website or application with front-end assets
+handling user athentication:-
+express can manage user authentication (login/logout) using sessions , cookies and third-party services liek oauth , making it a core part of user management syatems 
+real-time application :-
+with lib like socket.io , express can handle real-time communication , such as in chat application or live notificaions 
+middleware integration :-
+express allows the use of middleware to handle tasks such as logging , request validation , and error handling , making it useful for adding custom functionalities and improving app security 
+
+
+uniques features of express:- 
+minimalist framework
+powerfull routing system 
+middleware support 
+templating engines 
+asynchronous request handling 
+
+
+data flow :-
+Request →
+Middleware →
+Controller →
+Service →
+Database →
+Response
+
+
+
+
+
+
+
+
+
+
+
+-Phase 1: HTTP foundation
+HTTP theory ✅
+Methods ✅
+Status codes ✅
+Request/response cycle ✅
+-Phase 2: Request data
+req.params
+req.query
+req.body
+req.headers
+-Phase 3: API building
+GET by id
+filtering with query
+POST with validation
+PATCH / PUT
+DELETE
+-Phase 4: Backend structure
+server.js
+app.js
+routes
+controllers
+middleware
+-Phase 5: DB
+MongoDB
+Mongoose
+CRUD with DB

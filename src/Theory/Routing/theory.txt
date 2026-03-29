@@ -1,0 +1,73 @@
+routing in express is the process of mapping incoming http (defined by method an URL) To specific handler fucnitons
+it enables developers to configure endpoints for various paths and operations , such as rendering views , or performing CRUD actions on resources 
+
+app.METHOD(PATH,HANDLER)
+APP:- represents an instance of an express application 
+METHOD :- Represents an HTTP method (GET,POST,PUT,PATCH,DELETE...)
+PATH :- defines the endpoints (route) where the request will be handled
+HANDLER:- a funciton /controller function that executes when the route is accessed.
+
+
+
+HOW ROUTING WORKS IN EXPRESS?
+HTTP METHOD:- shows the incoming request with method and path (GET/users)
+ROUTE MATCHING :- list all defined routes and shows which route matches the request (green check ) and which doesnot 
+HANDLER FUNCTION:-indicates that the matching route handler function is executed (req,res)
+SENING RESPONSE :- shows how the server sends a response back to the client using method like res.send, res.json , res,render 
+
+
+
+types of routes :- basic routes in express:-
+basic routes involves defining RL and specifying a HTTP method (get , post put delete etc )
+
+route parameters in express :- 
+route parameters allows capturing dyamic values from URL , making routes flexible and reusable 
+req.params
+
+1) What are Route Parameters?
+Route parameters are dynamic values inside the URL path.
+
+Why do we use route parameters?
+Because sometimes you want:
+all users
+one specific user
+one specific product
+
+Examples:
+/api/v1/users → get all users
+/api/v1/users/1 → get user with id 1
+/api/v1/products/101 → get product with id 101
+So:
+Route parameters help us identify which exact resource the client wants.
+
+The colon : means:
+“This part is dynamic, capture it.”
+
+Important Rule: Params are always strings
+This is the biggest beginner point.
+Even if URL is: /api/v1/users/10
+
+Convert when needed
+If your data IDs are numbers, convert:
+const id = Number(req.params.id);
+used for validation 
+
+
+Multiple Route Parameters
+You can have more than one.
+/api/v1/users/5/orders/99
+{
+  userId: "5",
+  orderId: "99"
+}
+Parameter names can be anything meaningful
+You choose the name after :.
+Good:
+/users/:id
+/products/:productId
+/orders/:orderId
+/users/:userId/orders/:orderId
+Better practice:
+Use meaningful names when multiple params exist.
+
+

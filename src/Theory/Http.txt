@@ -1,0 +1,252 @@
+Simple definition:
+
+HTTP = HyperText Transfer Protocol
+It is the set of rules that tells:
+how client sends request
+how server receives it
+how server sends response back
+
+Real-life analogy:
+
+Think of HTTP like ordering food in a restaurant 🍽️
+Client (browser/Postman/frontend) = customer
+Server (Express backend) = waiter + kitchen
+Request = your order
+Response = food returned
+HTTP method = what kind of action you want
+Status code = kitchen’s final result
+
+
+Example:
+“Give me menu” → GET
+“Place order” → POST
+“Change my order” → PUT/PATCH
+“Cancel order” → DELETE
+
+HTTP Request–Response Cycle (VERY IMPORTANT)
+Every backend action follows this cycle:
+Client sends request
+        ↓
+Server receives request
+        ↓
+Server processes it
+        ↓
+Server sends response
+        ↓
+Client receives result
+
+
+
+
+A request has these important parts:
+
+1. Method
+What action is being requested?
+GET
+POST
+PUT
+PATCH
+DELETE
+
+
+
+2) URL / Endpoint
+Which resource?
+/api/products
+/api/users/101
+
+
+
+3) Headers
+Extra metadata
+Examples:
+content type
+auth token
+language
+Content-Type: application/json
+Authorization: Bearer abc123
+
+
+
+4) Query Parameters
+Used for filtering / searching
+/api/products?category=mobile&page=2
+
+
+
+5. Body
+Actual data sent to server (mostly POST/PUT/PATCH)
+{
+  "name": "Laptop",
+  "price": 60000
+}
+
+
+4) What is inside an HTTP Response?
+A response usually has:
+1. Status Code
+Tells result of request
+200
+201
+404
+500 etc.
+
+2. Headers
+Metadata about response
+Content-Type: application/json
+
+3. Response Body
+Actual returned data
+{
+  "message": "Product created"
+}
+
+
+
+
+
+
+
+
+
+5) HTTP METHODS — THE MOST IMPORTANT PART
+This is the heart of backend API design.
+1️⃣ GET → Fetch / Read data
+Use when:
+You want to read data from server.
+Examples:
+Get all products
+Get one user
+Get list of orders
+Example routes:
+GET /api/products
+GET /api/products/1
+GET /api/users
+
+Typical status code:
+200 OK
+Important:
+GET should not create/update/delete
+Safe method
+Usually no body
+
+
+2️⃣ POST → Create new data
+Use when:
+You want to send new data to server and create something.
+Examples:
+Create product
+Register user
+Login request
+Add order
+Example route:
+POST /api/products
+
+
+Typical status code:
+201 Created
+Important:
+POST often changes server state
+Usually contains body
+
+
+
+
+3️⃣ PUT → Replace full resource
+Use when:
+You want to update the entire object.
+Meaning:
+“Replace the existing resource with this new version.”
+👉 Whole object is replaced.
+Route:
+PUT /api/products/1
+Typical status code:
+200 OK
+sometimes 204 No Content
+
+
+4️⃣ PATCH → Partial update
+Use when:
+You want to update only some fields.
+Example:
+Only change price:
+{
+  "price": 55000
+}
+Route:
+PATCH /api/products/1
+Typical status code:
+200 OK
+
+5️⃣DELETE → Remove data
+Use when:
+You want to delete a resource.
+Route:
+DELETE /api/products/1
+Typical status code:
+200 OK
+or 204 No Content
+
+
+
+6) WHEN TO USE WHICH METHOD (Very Practical)
+
+This is where many beginners get confused.
+Scenario 1: Get all products
+GET /api/products
+Why?
+Because you are only reading.
+
+Scenario 2: Get one product by id
+GET /api/products/3
+Why?
+Still reading, just one item.
+
+Scenario 3: Add new product
+POST /api/products
+Why?
+You are creating a new product.
+
+Scenario 4: Update full product details
+PUT /api/products/3
+Why?
+You are replacing full object.
+
+Scenario 5: Only update stock
+PATCH /api/products/3
+Why?
+Only one field changed, so partial update.
+
+Scenario 6: Remove product
+DELETE /api/products/3
+Why?
+You are deleting resource.
+
+
+
+
+(Important)
+RESTful Route Design:-
+Good REST routes:-
+GET    /api/products
+GET    /api/products/:id
+POST   /api/products
+PUT    /api/products/:id
+PATCH  /api/products/:id
+DELETE /api/products/:id
+Golden rule:
+
+Use nouns in URL, use methods for action
+URL = resource (products)
+Method = action (GET, POST, etc.)
+
+
+
+For beginners, memorize these 7 first:
+200 → success
+201 → created
+400 → bad request
+401 → not logged in / invalid auth
+403 → logged in but not allowed
+404 → not found
+500 → server error

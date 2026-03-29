@@ -1,0 +1,180 @@
+the req object represent the http and has properties for the request query string, parameter , body , http headers , and so on 
+A request is everything the client sends to the server.
+
+Golden Rule (Remember Forever)
+All client data comes through req — nowhere else.
+No database
+No variables
+No magic
+
+what present in request :-
+req = {
+  method,
+  url,
+  params,
+  query,
+  body,
+  headers,
+  ...
+}
+
+req.url:-
+➡️ Where the client is asking.
+
+req.params:- (URL parameters)
+➡️ Identity data in the URL.
+Always string
+Used for specific resource
+/api/users/:userId ---> /api/users/101 --> req.params // { userId: "101" }
+
+
+req.query (Query string):- 
+➡️ Filters / options
+Request:
+/api/products?category=mobile&price=20000
+Value:
+req.query ----> // { category: "mobile", price: "20000" }
+Used for:
+Search
+Filter
+Pagination
+Sorting
+
+
+
+req.body (Request body)
+➡️ Actual data sent by client.
+Used with:
+POST
+PUT
+PATCH
+
+Example:
+{
+  "name": "Laptop",
+  "price": 60000
+}
+Access:
+req.body.name
+req.body.price
+
+⚠️ Only works if: app.use(express.json());
+
+
+req.method   → "POST"
+req.params   → { id: "10" }
+req.query    → { discount: "true" }
+req.body     → { price: 500 }
+
+
+
+req.headers
+➡️ Metadata about request.
+
+Example:
+req.headers.authorization
+req.headers["content-type"]
+
+Used for:
+Auth tokens
+Content type
+User agent
+
+
+7️⃣ req.ip
+➡️ Client IP address
+req.ip
+
+8️⃣ req.path
+➡️ Path without query
+/api/users/101
+
+
+request lifecycle:-
+Client
+  ↓
+Express receives request
+  ↓
+Global middleware
+  ↓
+Route-level middleware
+  ↓
+Controller (your logic)
+  ↓
+Response sent
+
+
+
+Step 1: Client sends request
+Example:
+POST /api/products
+Body: { "name": "Laptop", "price": 60000 }
+Browser / Postman sends:
+method
+url
+headers
+body
+
+🔹 Step 2: Express creates req & res
+Express wraps everything into:
+(req, res)
+From now on, this same req object travels everywhere.
+
+🔹 Step 3: Global Middleware
+Runs for every request.
+Example:
+app.use(express.json());
+What middleware does:
+Reads req
+Modifies req
+Decides whether request can continue
+
+Example:
+app.use((req, res, next) => {
+  console.log(req.method, req.url);
+  next(); // VERY IMPORTANT
+});
+if No next() → then request dies here.
+
+
+🔹 Step 4: Route Matching
+Express checks:
+Is there a route for this method + URL?
+Example:
+GET /api/users/101
+Matches:
+app.get("/api/users/:id", ...)
+If no match → 404
+
+
+🔹 Step 5: Route-level Middleware (optional)
+Used for:
+Auth
+Validation
+Permissions
+Example:
+app.get(
+  "/api/users/:id",
+  authMiddleware,
+  validationMiddleware,
+  controller
+);
+
+🔹 Step 6: Controller (Your main logic)
+This is where you:
+Read req
+Talk to DB
+Decide response
+Example:
+const id = req.params.id;
+
+Once you call:
+res.send() / res.json()
+
+
+👉 Request lifecycle ENDS.
+
+
+
+
+
