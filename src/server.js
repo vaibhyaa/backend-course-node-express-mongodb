@@ -8,7 +8,7 @@ const app = express();
 
 
 
-// start the server
+// start the server:-
 // app.listen() method starts the server and listen on port for incoming requests
 app.listen(PORT, (error) => {
   if (!error) {
@@ -26,64 +26,76 @@ app.listen(PORT, (error) => {
 
 
 
+
+
+
+
 // middleware :-
 // middleware is a function that runs between the request and response cycle. It can modify the request and response objects, end the request-response cycle, or call the next middleware in the stack.
 // middleware is used for various purposes like authentication, logging, error handling, parsing request bodies, etc.
 // In Express, you can use app.use() to apply middleware globally to all routes, or you can apply it to specific routes by passing it as an argument to the route handler.
 app.use(express.json());
-const loggerMiddleware = (req, res, next) => {
-  console.log(`${req.method} and ${req.url}`);
-  console.log(`Response: ${res.statusCode}`);
-  // console.log(`Response: ${res.statusMessage}`);
-  next();
-};
+// app.use(()=>{},()={})
+// we can pass as many as middleware as we want in app.use() and in route handler as well
+
+// example of custom middleware for logging:-
+// const loggerMiddleware = (req, res, next) => {
+//   console.log(`${req.method} and ${req.url}`);
+//   console.log(`Response: ${res.statusCode}`);
+//   // console.log(`Response: ${res.statusMessage}`);
+//   // next();
+//   // if we didnt call next() then the request will be stuck in the middleware and it willl never reach the route handler/ or next middleware and the server will not send any response to the client and it will be a bad user experience
+// };
+
 // instead of writing this loggerMiddleware for every route we can use app.use() to apply it globally to all routes
 // app.use(loggerMiddleware);
 // if i want to apply this loggerMiddleware only for specific route then i can pass it as an argument to the route handler like this
 // app.get("/api/v1/some-route", loggerMiddleware, (req, res) => {}
 
-
-
-
-
+// this is the exmple of multiple middleware for single route:-
+// if we didnt apply next() in any of the middleware then the request will be stuck in that middleware and it will never reach the route handler/ or next middleware and the server will not send any response to the client and it will be a bad user experience
+app.get(
+  "/justgetrequest",
+  (req, res, next) => {
+    console.log(`here we will get the request method: ${req.method}`);
+    next();
+    // here in first middleware we are logging the request method and then calling next() to pass the control to the next middleware in the stack (↓)
+  },
+  (req, res, next) => {
+    console.log(`here we will get the request url: ${req.url}`);
+    // here in second middleware we are logging the request url and not calling next()  so the request will be stuck in this middleware and it will never reach the route handler/ or next middleware and the server will not send any response to the client 
+    // instead of next()  if we send response here from sever then also the request will be end here and it will never reach the route handler/ or next middleware and the server will send response to the clien  
+    // because we want to end the request-response cycle here and send the response back to the client
+    // so basically if we want to end the request-response cycle in any middleware then we can send response from that middleware and we dont need to call next() because next() is used to pass the control
+    // if we want to pass the control to the next middleware in the stack then we need to call next() and if we want to end the request-response cycle in any middleware then we can send response from that middleware and we dont need to call next() because next() is used to pass the control
+    res.status(200).send({ message: "Hello from server" });
+  },
+  // (req, res, next) => {
+  //   res.status(200).send({ message: "Hello from server" });
+  // },
+);
 
 
 
 // define a route
 // get request :-
-app.get("/", loggerMiddleware, (request, response) => {
-  // the request object :-
-  // request object it is related to everything incomming
-  // http request if you passed header from client side to server side that wold be inside headers property of request object
-  // if wante to send data in request body that would be assessed by grabbing from request body property
-  // wanted to access cookies, ipaddress,all the stuff comes from request object
+// app.get("/", (request, response) => {
+//   // the request object :-
+//   // request object it is related to everything incomming
+//   // http request if you passed header from client side to server side that wold be inside headers property of request object
+//   // if wante to send data in request body that would be assessed by grabbing from request body property
+//   // wanted to access cookies, ipaddress,all the stuff comes from request object
 
-  // the responce object :-
-  // it is used to modify the response and send it back to user.
-  // you can send back data, text, html file, json object
+//   // the responce object :-
+//   // it is used to modify the response and send it back to user.
+//   // you can send back data, text, html file, json object
 
-  // response.send("welcome to the express.js tutorial ");
-  // response.status(200).send("<h1>Hello from server </h1>");
-  response.status(200).send({ message: "Hello from server" });
-
-  // In Express, if you pass an object or array to res.send(), Express automatically converts it to JSON.
-  // Only when you pass an object or array to res.send() does Express convert it to JSON.
-});
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+//   // response.send("welcome to the express.js tutorial ");
+//   // response.status(200).send("<h1>Hello from server </h1>");
+//   response.status(200).send({ message: "Hello from server" });
+//   // In Express, if you pass an object or array to res.send(), Express automatically converts it to JSON.
+//   // Only when you pass an object or array to res.send() does Express convert it to JSON.
+// });
 
 
 
@@ -109,29 +121,9 @@ app.get("/api/v1/allproducts", (req, res) => {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // QUERY PARAMS:-
 // http://localhost:3000/api/v1/user/sorted?key=values&key2=values2
 // i want to get all users from database but in sorted alphabetic order
-
 app.get("/api/v1/user/sorted", (req, res) => {
   // console.log(req.query);
 
@@ -199,34 +191,6 @@ app.get("/api/v1/user/sorted", (req, res) => {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // route parameters :-
 app.get("/api/v1/user/:userId", (req, res) => {
   // In Express, route params are always strings.
@@ -257,52 +221,11 @@ app.get("/api/v1/user/:userId", (req, res) => {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // post request :-
 // req.body :- whenever we make post/patch/put request the data that we want to send it to backed server you send via a payload or req.body.
 // the backed will take that data and perform necessary operations it need validation / parsing / proper fields
 // it does all this process before it proceeds wither saving it to database or saving in external api source
 // it will return responce / and message / response
-
 app.post("/api/v1/user", (req, res) => {
   // console.log(req.body);
   // it shows undefined because express not parsing those request bodies are comming in (use express.json() middleware for that )
@@ -323,42 +246,6 @@ app.post("/api/v1/user", (req, res) => {
     data: newUser,
   });
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -413,47 +300,6 @@ app.patch("/api/v1/user/:userId", (req, res) => {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // put request :-
 // not updating the small portion of request but updating the entire request
 // updating the entire record
@@ -485,42 +331,6 @@ app.put("/api/v1/user/:userId", (req, res) => {
     data: users[findUserIndex],
   });
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

@@ -32,7 +32,6 @@ req.body
 
 
 
-
 Middleware is a function that executes after client sends request and before server sends response.
 
 Flow:
