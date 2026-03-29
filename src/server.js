@@ -6,8 +6,6 @@ import products from "./data/products.js";
 const PORT = process.env.PORT || 3000;
 const app = express();
 
-
-
 // start the server:-
 // app.listen() method starts the server and listen on port for incoming requests
 app.listen(PORT, (error) => {
@@ -17,14 +15,6 @@ app.listen(PORT, (error) => {
     console.log("error occured , server cant start ", error);
   }
 });
-
-
-
-
-
-
-
-
 
 
 
@@ -49,7 +39,7 @@ app.use(express.json());
 
 // instead of writing this loggerMiddleware for every route we can use app.use() to apply it globally to all routes
 // app.use(loggerMiddleware);
-// if i want to apply this loggerMiddleware only for specific route then i can pass it as an argument to the route handler like this
+// if i want to apply this Middleware only for specific route then i can pass it as an argument to the route handler like this
 // app.get("/api/v1/some-route", loggerMiddleware, (req, res) => {}
 
 // this is the exmple of multiple middleware for single route:-
@@ -63,8 +53,8 @@ app.get(
   },
   (req, res, next) => {
     console.log(`here we will get the request url: ${req.url}`);
-    // here in second middleware we are logging the request url and not calling next()  so the request will be stuck in this middleware and it will never reach the route handler/ or next middleware and the server will not send any response to the client 
-    // instead of next()  if we send response here from sever then also the request will be end here and it will never reach the route handler/ or next middleware and the server will send response to the clien  
+    // here in second middleware we are logging the request url and not calling next()  so the request will be stuck in this middleware and it will never reach the route handler/ or next middleware and the server will not send any response to the client
+    // instead of next()  if we send response here from sever then also the request will be end here and it will never reach the route handler/ or next middleware and the server will send response to the clien
     // because we want to end the request-response cycle here and send the response back to the client
     // so basically if we want to end the request-response cycle in any middleware then we can send response from that middleware and we dont need to call next() because next() is used to pass the control
     // if we want to pass the control to the next middleware in the stack then we need to call next() and if we want to end the request-response cycle in any middleware then we can send response from that middleware and we dont need to call next() because next() is used to pass the control
@@ -74,6 +64,37 @@ app.get(
   //   res.status(200).send({ message: "Hello from server" });
   // },
 );
+
+
+
+// here is the perfect example of midleware :-
+// as many route handler we have we need to write common code for validation , parsing , filtering , sorting etc. in every route handler
+// for put,patch,delete,get
+const validateUserIdMiddleware = (req, res, next) => {
+  // const {body,params:{Id}} =req;
+  const { userId } = req.params;
+  const parsedId = parseInt(userId);
+  if (isNaN(parsedId)) {
+    return res.status(400).json({ message: "Invalid user ID" });
+  }
+  const findUserIndex = users.findIndex((eachUser) => eachUser.id === parsedId);
+  if (findUserIndex === -1) {
+    return res.status(404).json({ message: "User not found" });
+  }
+  // console.log(findUserIndex);
+  req.findUserIndex = findUserIndex;
+  // next() does not automatically pass any data to the next middleware or route handler, but we can attach data to the req object (like req.findUserByid) and it will be accessible in the next middleware or route handler as well because they all share the same req object in the request-response cycle.
+  // next() does take any argument, but it except an error object /null. If you pass an error object to next(), it will skip all remaining non-error handling middleware and route handlers and go directly to the error handling middleware. If you pass null or nothing to next(), it will simply pass control to the next middleware or route handler in the stack.
+  // next (new Error("Something went wrong") ) -> this will skip all remaining non-error handling middleware and route handlers and go directly to the error handling middleware
+  next();
+};
+
+
+
+
+
+
+
 
 
 
@@ -100,6 +121,7 @@ app.get(
 
 
 
+// GET:-
 // industry standard to start with /api/v1/..
 // v1 is optionl (just info about first version of apis )
 app.get(
@@ -109,42 +131,29 @@ app.get(
     res.status(201).send(users);
   },
 );
-
 app.get("/api/v1/allproducts", (req, res) => {
   res.status(201).send(products);
 });
-
-
-
-
-
-
-
 
 // QUERY PARAMS:-
 // http://localhost:3000/api/v1/user/sorted?key=values&key2=values2
 // i want to get all users from database but in sorted alphabetic order
 app.get("/api/v1/user/sorted", (req, res) => {
   // console.log(req.query);
-
   const { filter, value, surname } = req.query;
   if (!filter || !value || !surname) {
     return res.status(200).send(users);
   }
-
   if (filter && value && surname) {
     const findUser = users.filter((eachUser) => {
       // console.log(String(eachUser[filter]).toLowerCase().split(" ")[0]);
       const name = String(eachUser[filter]).toLowerCase().split(" ")[0];
       const surName = String(eachUser[filter]).toLowerCase().split(" ")[1];
-
       return name === value.toLowerCase() && surName === surname.toLowerCase();
       // return name === value.toLowerCase();
     });
-
     return res.status(200).send(findUser);
   }
-
   return res.status(400).json({
     message: "All query params (filter, value, surname) are required",
   });
@@ -160,7 +169,6 @@ app.get("/api/v1/user/sorted", (req, res) => {
 //   if (!filter && !value) {
 //     return res.status(200).send(users);
 //   }
-
 //   if (filter && value) {
 //     const findUser = users.filter((eachUser) => {
 //       // first eachUser[filter] is like each["name"]/each["id"]
@@ -175,12 +183,10 @@ app.get("/api/v1/user/sorted", (req, res) => {
 //     //     data: [],
 //     //   });
 //     // }
-
 //     // search was valid, but nothing matched
 //     // if no match found -> returns []
 //     return res.status(200).send(findUser);
 //   }
-
 //   // fallback if filter is invalid
 //   return res.status(400).json({
 //     message: "Invalid filter. Use filter=name&value=someName",
@@ -188,28 +194,13 @@ app.get("/api/v1/user/sorted", (req, res) => {
 // });
 
 
+// ROUTE parameters :-
+app.get("/api/v1/user/:userId", validateUserIdMiddleware, (req, res) => {
+  const { findUserIndex } = req;
+  const findUser = users[findUserIndex];
+  console.log(findUser);
 
-
-
-// route parameters :-
-app.get("/api/v1/user/:userId", (req, res) => {
-  // In Express, route params are always strings.
-  // console.log(req.params);
-  // console.log(req.params.userId);
-  // console.log(typeof req.params.userId);
-
-  // the route param which user passed converted to number and it is needed sometomes because in databse the id is saved as number
-  const parsedId = parseInt(req.params.userId);
-  // console.log(parseId, typeof parseId);
-  // console.log(parsedId);
-  if (isNaN(parsedId)) {
-    // is user put anything wrond or like "sdbsd" instead of id then isNan(parseId)===Nan because parseId will be Nan
-    // the responce will be bad request
-    res.status(400).send({ message: "bad request. Invalis Id." });
-  }
-  const findUser = users.find((eachuser) => eachuser.id === parsedId);
-  if (!findUser) {
-    // res.status(404).send({ message: "user not found " });
+  if (findUser === -1) {
     res.sendStatus(404);
   }
   res.status(200).send(findUser);
@@ -220,8 +211,8 @@ app.get("/api/v1/user/:userId", (req, res) => {
 
 
 
-
-// post request :-
+//  POST request :-
+// used to create new data on backend server
 // req.body :- whenever we make post/patch/put request the data that we want to send it to backed server you send via a payload or req.body.
 // the backed will take that data and perform necessary operations it need validation / parsing / proper fields
 // it does all this process before it proceeds wither saving it to database or saving in external api source
@@ -253,34 +244,20 @@ app.post("/api/v1/user", (req, res) => {
 
 
 
-
-
-
-
-// patch request :-
+// PATCH request :-
 // want to update some data on backend
 // updates the data partially (not updating the entore data but some part/portion of it )
-app.patch("/api/v1/user/:userId", (req, res) => {
+app.patch("/api/v1/user/:userId", validateUserIdMiddleware, (req, res) => {
   const {
     body,
     params: { userId },
+    findUserIndex,
   } = req;
-  // console.log(userId, body);
-  const parsedId = parseInt(userId);
-  if (isNaN(parsedId)) {
-    return res.sendStatus(400);
-  }
-
-  const findUserIndex = users.findIndex((eachUser) => eachUser.id === parsedId);
-  if (findUserIndex === -1) {
-    return res.sendStatus(404);
-  }
-  console.log(users[findUserIndex]);
-
   users[findUserIndex] = {
     ...users[findUserIndex], // keep old fields
     ...body, // overwrite only sent fields
-    id: parsedId, // protect id
+    // id: parsedId, // protect id
+    id: parseInt(userId), //
   };
 
   return res.status(200).json({
@@ -294,38 +271,23 @@ app.patch("/api/v1/user/:userId", (req, res) => {
 
 
 
-
-
-
-
-
-
-// put request :-
+// PUT request :-
 // not updating the small portion of request but updating the entire request
 // updating the entire record
-
-app.put("/api/v1/user/:userId", (req, res) => {
+app.put("/api/v1/user/:userId", validateUserIdMiddleware, (req, res) => {
   const {
     body,
     params: { userId },
+    findUserIndex,
   } = req;
-
-  const parsedId = parseInt(userId);
-  if (isNaN(parsedId)) {
-    return res.sendStatus(400);
-  }
-
-  const findUserIndex = users.findIndex((eachUser) => eachUser.id === parsedId);
-  if (findUserIndex === -1) {
-    return res.sendStatus(404);
-  }
-  console.log(users[findUserIndex]);
-
+  // still here need the req.body and req.params.userId because we need to update the user with the id which is coming from route param and we need the body to update the user
+  // console.log(users[findUserIndex]);
   users[findUserIndex] = {
-    id: parsedId,
+    // id: users[findUserIndex].id, //
+    id: parseInt(userId),
+    // id: parsedId,
     ...body, // replace full user
   };
-
   return res.status(200).json({
     message: "User updated successfully",
     data: users[findUserIndex],
@@ -335,26 +297,10 @@ app.put("/api/v1/user/:userId", (req, res) => {
 
 
 
-
-
-
-
-
-
-
-// delete request :-
+// DELETE request :-
 // delete the data from backend
-app.delete("/api/v1/user/:userId", (req, res) => {
-  const { userId } = req.params;
-  const parsedId = parseInt(userId);
-  if (isNaN(parsedId)) {
-    return res.sendStatus(400);
-  }
-
-  const findUserIndex = users.findIndex((eachUser) => eachUser.id === parsedId);
-  if (findUserIndex === -1) {
-    return res.sendStatus(404);
-  }
+app.delete("/api/v1/user/:userId", validateUserIdMiddleware, (req, res) => {
+  const { findUserIndex } = req.params;
   users.splice(findUserIndex, 1);
   return res.status(200).json({
     message: "User deleted successfully",
