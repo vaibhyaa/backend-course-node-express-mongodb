@@ -1,0 +1,235 @@
+node js interview questions and answers:-
+1)what is node.js ?
+Node.js is a JavaScript runtime environment built on Chrome’s V8 engine that allows JavaScript to run outside the browser, mainly for server-side development.
+Node.js is a runtime environment, not a framework.
+node js is open-source cross platform meaning it can run on windws, android, and mac etc 
+means when we write javascript code on any ide(vscode etc) it has no run-time environment to execute it unless it is attached with html file 
+Node js is single-thread, non-blocking architecture 
+powerful ecosystem for developers 
+
+Why is Node.js single-threaded?
+Answer:
+Node.js uses a single-threaded event loop model to handle many concurrent requests efficiently using non-blocking I/O, instead of creating one thread per request.
+
+5. What is the event loop in Node.js?
+Answer:
+The event loop is the mechanism that allows Node.js to perform non-blocking asynchronous operations by offloading tasks and processing callbacks when they are ready.
+
+Difference between synchronous and asynchronous code?
+Answer:
+how tasks are executed inrelation to one another 
+Synchronous: tasks are executed one after another in sequential manner 
+each task wait for previous task to finish 
+Executes line by line, waits for each task to finish.
+Asynchronous: it allows tasks to run concurrently without waiting for another task to complete 
+it is particularly use for time consuming tasks 
+Starts a task and continues execution without waiting.
+
+
+how does node.js achieve asynchrornous programming ?
+achieved by event drive approach , non block i/o
+callbacks:
+function passed as an argument and executed after an async task completes, ensuring non-blocking execution 
+promises:- represent the eventual result of an async task, enabling chaining with .then() and .catch() for continued proocessing 
+async/await :- simplifies asynch programming by pausing code execution at await until a promise reolves 
+
+
+what is the event loop in node.js ? how does t work ?
+
+
+
+
+you exaplin working of node.js ? 
+n Node.js, JavaScript runs on a single main thread.
+Synchronous or blocking code is executed directly on the call stack one by one.
+The event loop is the heart of Node.js. It runs continuously and checks whether the call stack is free.
+When Node.js encounters a non-blocking or asynchronous task, such as a timer, file read, or API call, it does not execute it directly on the main thread. Instead, it sends that task to the OS or libuv to be processed in the background.
+For operations like file system, crypto, DNS, and compression, libuv uses a thread pool with multiple background threads.
+Once the background task is completed, the callback/result is placed into the callback queue.
+Then the event loop picks that callback from the queue and pushes it to the call stack for execution.
+This is how Node.js can handle multiple requests efficiently even though JavaScript itself runs on a single thread.
+
+
+
+Node.js runs JavaScript on a single thread.
+Normal synchronous code runs directly on the main thread.
+If there is an asynchronous task like file reading, timer, or network request, Node.js sends it to the background using the OS or libuv.
+The event loop keeps checking whether the main thread is free.
+When the background task is finished, its callback comes into the queue.
+Then the event loop moves that callback to the main thread and executes it.
+This is how Node.js handles many requests efficiently without blocking the server.
+
+Node.js works on a single main thread for executing JavaScript code.
+First, all synchronous (blocking) code runs directly on the call stack.
+When Node.js finds an asynchronous or non-blocking operation like a timer, API call, or file read, it does not stop the main thread. Instead, it sends that task to Node.js APIs / the OS / libuv to be handled in the background.
+
+The event loop is the heart of Node.js. It keeps running continuously and checks whether the call stack is free. Once a background task is completed, its callback is placed into a callback queue (or event queue). Then the event loop takes that callback from the queue and pushes it to the call stack for execution.
+
+For some operations like file system, crypto, DNS, or compression, Node.js uses libuv’s thread pool in the background. This means even though JavaScript runs on one main thread, Node.js can still handle multiple operations efficiently using background threads.
+
+So in short:
+Sync code runs on the main thread, async tasks go to background handlers, completed callbacks come to the queue, and the event loop executes them when the stack is free.
+
+Your JS Code
+   ↓
+V8 Engine executes sync code
+   ↓
+Call Stack
+   ↓
+If async task found:
+   → send to Node APIs / libuv / OS
+   ↓
+Task completes
+   ↓
+Callback added to Queue
+   ↓
+Event Loop checks if stack is empty
+   ↓
+Moves callback to Call Stack
+   ↓
+Callback executes
+
+
+why node js is so popular ?
+speed, data streaming , single code-base, database quaries, real-time web app, productivity
+
+
+
+2)Different between javascript vs node.js ? 
+javascript :-
+client-side language :-
+used to make web pages interactive (updating content, form validation, animatiosn)
+runs in browser :- works within <script></script> tags inside html file and execute directly in web browser 
+node js :- 
+it enables javascript to run on servers for building web servers, APIS, and handling data requests 
+enent-driven and scalable :- 
+hanldes multiple connections simmultaneously with its non-blocking , asynchronous architecture 
+
+What is non-blocking I/O?
+Answer:
+Non-blocking I/O means Node.js does not wait for an operation (like file read or DB call) to finish before moving to the next line of code.
+
+
+What is the difference between require() and import?
+Answer:
+require() → CommonJS module system
+import → ES Modules (modern JavaScript module syntax)
+Example:
+const fs = require("fs"); // CommonJS
+import fs from "fs";      // ES Module
+
+
+What is package.json?
+heart of node js project (central file in node.js project storing key details name , version , descirption )
+tracks and manage all dependencies 
+guides node.js on how to start the project and run 
+Answer:
+It is the configuration file of a Node.js project that contains:
+project metadata
+dependencies
+scripts
+version
+main entry file
+
+What is npm?
+Answer:
+npm = Node Package Manager.
+It is used to:
+install packages
+manage dependencies
+run scripts
+
+What is the difference between dependencies and devDependencies?
+Answer:
+dependencies → needed in production
+devDependencies → needed only during development (e.g., nodemon, eslint, jest)
+
+What is npx?
+Answer:
+npx executes packages without globally installing them.
+
+What is the purpose of node_modules?
+Answer:
+It stores all installed project dependencies.
+
+What is the difference between process.nextTick() and setImmediate()?
+Answer:
+process.nextTick() runs before the next event loop phase
+setImmediate() runs in the check phase of the event loop
+
+why is node.js single threaded ? 
+
+
+
+(javascrit question )
+What is a callback function?
+A callback is a function passed as an argument to another function and executed later.
+what s callback hell ? 
+Nested callbacks that make code hard to read and maintain.
+a situation where deeply nested callback mae code difficuly to read,maintain, and debug
+to avoid this promises instead of nested callbck promise let you to chain .then() and catch () it is readable 
+async/await :- it makes your asynchronous code makes liek synchronous code easy to read , write , update , debug 
+
+
+Promises ?
+A Promise represents the eventual completion or failure of an asynchronous operation.
+Pending
+Fulfilled
+Rejected
+
+Difference between callback and Promise?
+Answer:
+Callback → older style, can lead to callback hell
+Promise → cleaner chaining with .then() and .catch()
+
+What is the difference between setTimeout, setInterval, and setImmediate?
+Answer:
+setTimeout() → runs once after delay
+setInterval() → runs repeatedly after interval
+setImmediate() → runs after I/O callbacks in current event loop cycle
+
+
+What is async/await?
+Answer:
+async/await is syntactic sugar over Promises that makes asynchronous code look synchronous and easier to read.
+
+What are Node.js modules?
+Answer:
+Modules are reusable blocks of code.
+Types:
+Core modules (fs, http, path)
+Local modules
+Third-party modules
+top 5 built-in modules : - (modular application )
+http:- used to create web servers for handling client request 
+It is used to create HTTP servers and handle HTTP requests/responses in Node.js.
+http.createServer()
+fs(file system):- handles file operations like reading, writing or deleting files
+fs.readFile() → asynchronous, non-blocking
+fs.readFileSync() → synchronous, blocking
+fs.writeFileSync()
+path:- manages and esolves file paths effectively 
+It helps work with file and directory paths in a platform-independent way.
+path.join()
+os :- provies information about the operating system 
+os.platform()
+express.js :-simplifies web  application development with easy-to-use features 
+app.get("/") 
+
+Purpose of module exports :-
+modular programming , code reusability , adstraction , seperation of concerns 
+
+
+How do you create a simple server in Node.js?
+const http = require("http");
+const server = http.createServer((req, res) => {
+  res.end("Hello World");
+});
+server.listen(3000, () => console.log("Server running"));
+
+What is the EventEmitter in Node.js?
+EventEmitter is a class used to create and handle custom events.
+const EventEmitter = require("events");
+const emitter = new EventEmitter();
+emitter.on("greet", () => console.log("Hello"));
+emitter.emit("greet");

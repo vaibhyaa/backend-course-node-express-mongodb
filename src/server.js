@@ -1,6 +1,13 @@
 import express, { request } from "express";
 import users from "./data/users.js";
 import products from "./data/products.js";
+import {
+  query,
+  validationResult,
+  body,
+  matchedData,
+  param,
+} from "express-validator";
 // the express is imported using ('express') and app instance is created with express()
 // a route is defined using app.get() method , which responds with message
 const PORT = process.env.PORT || 3000;
@@ -15,10 +22,6 @@ app.listen(PORT, (error) => {
     console.log("error occured , server cant start ", error);
   }
 });
-
-
-
-
 
 // middleware :-
 // middleware is a function that runs between the request and response cycle. It can modify the request and response objects, end the request-response cycle, or call the next middleware in the stack.
@@ -65,8 +68,6 @@ app.get(
   // },
 );
 
-
-
 // here is the perfect example of midleware :-
 // as many route handler we have we need to write common code for validation , parsing , filtering , sorting etc. in every route handler
 // for put,patch,delete,get
@@ -88,15 +89,19 @@ const validateUserIdMiddleware = (req, res, next) => {
   // next (new Error("Something went wrong") ) -> this will skip all remaining non-error handling middleware and route handlers and go directly to the error handling middleware
   next();
 };
+const validateRequest = (req, res, next) => {
+  const result = validationResult(req);
 
+  if (!result.isEmpty()) {
+    return res.status(400).json({
+      errors: result.array().map((eachError) => ({
+        message: eachError.msg,
+      })),
+    });
+  }
 
-
-
-
-
-
-
-
+  next();
+};
 
 // define a route
 // get request :-
@@ -118,9 +123,6 @@ const validateUserIdMiddleware = (req, res, next) => {
 //   // Only when you pass an object or array to res.send() does Express convert it to JSON.
 // });
 
-
-
-
 // GET:-
 // industry standard to start with /api/v1/..
 // v1 is optionl (just info about first version of apis )
@@ -138,78 +140,122 @@ app.get("/api/v1/allproducts", (req, res) => {
 // QUERY PARAMS:-
 // http://localhost:3000/api/v1/user/sorted?key=values&key2=values2
 // i want to get all users from database but in sorted alphabetic order
-app.get("/api/v1/user/sorted", (req, res) => {
-  // console.log(req.query);
-  const { filter, value, surname } = req.query;
-  if (!filter || !value || !surname) {
-    return res.status(200).send(users);
-  }
-  if (filter && value && surname) {
-    const findUser = users.filter((eachUser) => {
-      // console.log(String(eachUser[filter]).toLowerCase().split(" ")[0]);
-      const name = String(eachUser[filter]).toLowerCase().split(" ")[0];
-      const surName = String(eachUser[filter]).toLowerCase().split(" ")[1];
-      return name === value.toLowerCase() && surName === surname.toLowerCase();
-      // return name === value.toLowerCase();
-    });
-    return res.status(200).send(findUser);
-  }
-  return res.status(400).json({
-    message: "All query params (filter, value, surname) are required",
-  });
-});
-// app.get("/api/v1/user/sorted", (req, res) => {
-//   console.log(req.query);
-//   // const {
-//   //   query: { filter, value },
-//   // } = req;
-//   const { filter, value } = req.query;
+// app.get(
+//   "/api/v1/user/sorted",
+//   query("filter")
+//     .isString()
+//     .isEmpty().isLength({min:3,max:5}),
+//   (req, res) => {
+//     // console.log(req.query);
+//     const result = validationResult(req);
+//     console.log(result);
 
-//   // when filter and value is undefined the send all users
-//   if (!filter && !value) {
-//     return res.status(200).send(users);
-//   }
-//   if (filter && value) {
-//     const findUser = users.filter((eachUser) => {
-//       // first eachUser[filter] is like each["name"]/each["id"]
-//       // second is their are some num,boolean properties so needed to convert everything to sting and lowercaes
-//       return String(eachUser[filter]).toLowerCase() === value.toLowerCase();
+//     const { filter, value, surname } = req.query;
+//     if (!filter || !value || !surname) {
+//       return res.status(200).send(users);
+//     }
+//     if (filter && value && surname) {
+//       const findUser = users.filter((eachUser) => {
+//         // console.log(String(eachUser[filter]).toLowerCase().split(" ")[0]);
+//         const name = String(eachUser[filter]).toLowerCase().split(" ")[0];
+//         const surName = String(eachUser[filter]).toLowerCase().split(" ")[1];
+//         return (
+//           name === value.toLowerCase() && surName === surname.toLowerCase()
+//         );
+//         // return name === value.toLowerCase();
+//       });
+//       return res.status(200).send(findUser);
+//     }
+//     return res.status(400).json({
+//       message: "All query params (filter, value, surname) are required",
 //     });
-//     // console.log(findUser);
+//   },
+// );
+app.get(
+  "/api/v1/user/sorted",
+  query("filter")
+    .notEmpty()
+    .withMessage("filter is required")
+    .isIn(["id", "name"])
+    .withMessage("filter must be one of: id, name"),
 
-//     // if (findUser.length === 0) {
-//     //   return res.status(200).json({
-//     //     message: "No users found",
-//     //     data: [],
-//     //   });
-//     // }
-//     // search was valid, but nothing matched
-//     // if no match found -> returns []
-//     return res.status(200).send(findUser);
-//   }
-//   // fallback if filter is invalid
-//   return res.status(400).json({
-//     message: "Invalid filter. Use filter=name&value=someName",
-//   });
-// });
+  query("value")
+    .notEmpty()
+    .withMessage("value is required")
+    .isString()
+    .withMessage("value must be a string"),
 
+  (req, res) => {
+    // validation first :-
+    const result = validationResult(req);
+    if (result.isEmpty() === false) {
+      return res.status(400).json({
+        errors: result.array().map((eachError) => ({
+          message: eachError.msg,
+        })),
+      });
+    }
+    // const {
+    //   query: { filter, value },
+    // } = req;
+    const { filter, value } = req.query;
+    // console.log(filter, value);
+    // const result = validationResult(req);
+    // console.log(result);
+    // when filter and value is undefined the send all users
+    if (!filter && !value) {
+      return res.status(200).send(users);
+    }
+    if (filter && value) {
+      const findUser = users.filter((eachUser) => {
+        // first eachUser[filter] is like each["name"]/each["id"]
+        // second is their are some num,boolean properties so needed to convert everything to sting and lowercaes
+        return String(eachUser[filter]).toLowerCase() === value.toLowerCase();
+      });
+      if (findUser.length === 0) {
+        // if userput 101 and there is no user with id 101 then findUser will be [] and length will be 0 so we can return 404 not found
+        return res.status(404).json({
+          message: "No users found",
+          data: [],
+        });
+      }
+      // search was valid, but nothing matched
+      // if no match found -> returns []
+      return res.status(200).send(findUser);
+    }
+    // fallback if filter is invalid
+    return res.status(400).json({
+      message: "Invalid filter. Use filter=name&value=someName",
+    });
+  },
+);
 
 // ROUTE parameters :-
-app.get("/api/v1/user/:userId", validateUserIdMiddleware, (req, res) => {
-  const { findUserIndex } = req;
-  const findUser = users[findUserIndex];
-  console.log(findUser);
+app.get(
+  "/api/v1/user/:userId",
+  param("userId")
+    .notEmpty()
+    .withMessage("userId is required")
+    .isInt({ min: 1, max: 100 })
+    .withMessage("userId is required and should be a number between 1 and 100"),
+  validateUserIdMiddleware,
+  (req, res) => {
+    const result = validationResult(req);
+    if (!result.isEmpty()) {
+      return res.status(400).json({
+        errors: result.array().map((eachError) => ({ message: eachError.msg })),
+      });
+    }
+    const { findUserIndex } = req;
+    const findUser = users[findUserIndex];
+    console.log(findUser);
 
-  if (findUser === -1) {
-    res.sendStatus(404);
-  }
-  res.status(200).send(findUser);
-});
-
-
-
-
-
+    if (findUser === -1) {
+      res.sendStatus(404);
+    }
+    res.status(200).send(findUser);
+  },
+);
 
 //  POST request :-
 // used to create new data on backend server
@@ -217,92 +263,151 @@ app.get("/api/v1/user/:userId", validateUserIdMiddleware, (req, res) => {
 // the backed will take that data and perform necessary operations it need validation / parsing / proper fields
 // it does all this process before it proceeds wither saving it to database or saving in external api source
 // it will return responce / and message / response
-app.post("/api/v1/user", (req, res) => {
-  // console.log(req.body);
-  // it shows undefined because express not parsing those request bodies are comming in (use express.json() middleware for that )
-  const newUser = req.body;
-  // validation
-  if (!newUser.id || !newUser.name) {
-    // For REST APIs:
-    // use res.json() for objects/arrays
-    // use res.send() for plain text / HTML / simple messages
-    return res.status(400).json({
-      message: "Please provide id and name",
+app.post(
+  "/api/v1/user",
+  body("age")
+    .notEmpty()
+    .withMessage("age cannot be empty")
+    .isNumeric()
+    .withMessage("age must be a number")
+    .isInt({ min: 18, max: 50 })
+    .withMessage("age should be between 18 and 50"),
+  (req, res) => {
+    // validation (always do brfore any processing of data in backend )
+    const result = validationResult(req);
+    // console.log(result);
+    // if error are their then result.isEmpty() will be false and convert to true by ! so block code will execute
+    // if errors are not present the result.isEmpty() will be true and convert to false by ! so block code will not execute and it will move forward to the next code
+    if (!result.isEmpty()) {
+      return res.status(400).json({
+        errors: result.array().map((eachError) => ({ message: eachError.msg })),
+      });
+    }
+
+    const bodyData = matchedData(req);
+    // console.log(data);
+    // const newUser = req.body;
+    // console.log(newUser);
+    // console.log(req.body);
+    // it shows undefined because express not parsing those request bodies are comming in (use express.json() middleware for that )
+
+    if (!newUser.id || !newUser.name) {
+      // For REST APIs:
+      // use res.json() for objects/arrays
+      // use res.send() for plain text / HTML / simple messages
+      return res.status(400).json({
+        message: "Please provide id and name",
+      });
+    }
+    users.push(newUser);
+    //   // need to use the inbuild middleware for this express.json()
+    return res.status(201).json({
+      message: "User successfully created",
+      bodyData: newUser,
     });
-  }
-  users.push(newUser);
-  //   // need to use the inbuild middleware for this express.json()
-  return res.status(201).json({
-    message: "User successfully created",
-    data: newUser,
-  });
-});
-
-
-
-
-
-
+  },
+);
 
 // PATCH request :-
 // want to update some data on backend
 // updates the data partially (not updating the entore data but some part/portion of it )
-app.patch("/api/v1/user/:userId", validateUserIdMiddleware, (req, res) => {
-  const {
-    body,
-    params: { userId },
-    findUserIndex,
-  } = req;
-  users[findUserIndex] = {
-    ...users[findUserIndex], // keep old fields
-    ...body, // overwrite only sent fields
-    // id: parsedId, // protect id
-    id: parseInt(userId), //
-  };
+app.patch(
+  "/api/v1/user/:userId",
+  validateUserIdMiddleware,
+  param("userId")
+    .notEmpty()
+    .withMessage("userId is required")
+    .isInt({ min: 1, max: 100 })
+    .withMessage("userId is required and should be a number between 1 and 100"),
+  (req, res) => {
+    // validation
+    const result = validationResult(req);
+    if (!result.isEmpty()) {
+      return res.status(400).json({
+        errors: result.array().map((eachError) => ({ message: eachError.msg })),
+      });
+    }
+    const {
+      params: { userId },
+      findUserIndex,
+    } = req;
+    const bodyData = matchedData(req);
+    users[findUserIndex] = {
+      ...users[findUserIndex], // keep old fields
+      ...bodyData, // overwrite only sent fields
+      // id: parsedId, // protect id
+      id: parseInt(userId), //
+    };
 
-  return res.status(200).json({
-    message: "User updated successfully",
-    data: users[findUserIndex],
-  });
-});
-
-
-
-
-
+    return res.status(200).json({
+      message: "User updated successfully",
+      data: users[findUserIndex],
+    });
+  },
+);
 
 // PUT request :-
 // not updating the small portion of request but updating the entire request
 // updating the entire record
-app.put("/api/v1/user/:userId", validateUserIdMiddleware, (req, res) => {
-  const {
-    body,
-    params: { userId },
-    findUserIndex,
-  } = req;
-  // still here need the req.body and req.params.userId because we need to update the user with the id which is coming from route param and we need the body to update the user
-  // console.log(users[findUserIndex]);
-  users[findUserIndex] = {
-    // id: users[findUserIndex].id, //
-    id: parseInt(userId),
-    // id: parsedId,
-    ...body, // replace full user
-  };
-  return res.status(200).json({
-    message: "User updated successfully",
-    data: users[findUserIndex],
-  });
-});
-
-
-
+app.put(
+  "/api/v1/user/:userId",
+  param("userId")
+    .notEmpty()
+    .withMessage("userId is required")
+    .isInt({ min: 1, max: 100 })
+    .withMessage("userId is required and should be a number between 1 and 100"),
+  validateUserIdMiddleware,
+  (req, res) => {
+    // validation
+    const result = validationResult(req);
+    if (!result.isEmpty()) {
+      return res.status(400).json({
+        errors: result.array().map((eachError) => ({ message: eachError.msg })),
+      });
+    }
+    const {
+      params: { userId },
+      findUserIndex,
+    } = req;
+    const bodyData = matchedData(req);
+    // still here need the req.body and req.params.userId because we need to update the user with the id which is coming from route param and we need the body to update the user
+    // console.log(users[findUserIndex]);
+    users[findUserIndex] = {
+      // id: users[findUserIndex].id, //
+      id: parseInt(userId),
+      // id: parsedId,
+      ...bodyData, // replace full user
+    };
+    return res.status(200).json({
+      message: "User updated successfully",
+      data: users[findUserIndex],
+    });
+  },
+);
 
 // DELETE request :-
 // delete the data from backend
-app.delete("/api/v1/user/:userId", validateUserIdMiddleware, (req, res) => {
-  const { findUserIndex } = req.params;
-  users.splice(findUserIndex, 1);
-  return res.status(200).json({
-    message: "User deleted successfully",
-  });
-});
+app.delete(
+  "/api/v1/user/:userId",
+  param("userId")
+    .isInt({ min: 1, max: 100 })
+    .withMessage("userId is required and should be a number between 1 and 100"),
+  validateRequest,
+  validateUserIdMiddleware,
+  (req, res) => {
+    // validation
+    const result = validationResult(req);
+    console.log(result);
+
+    if (!result.isEmpty()) {
+      return res.status(400).json({
+        errors: result.array().map((eachError) => ({ message: eachError.msg })),
+      });
+    }
+    const { findUserIndex } = req;
+    users.splice(findUserIndex, 1);
+    return res.status(200).json({
+      message: "User deleted successfully",
+    });
+  },
+);

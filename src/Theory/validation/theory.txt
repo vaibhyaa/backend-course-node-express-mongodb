@@ -1,0 +1,9 @@
+express-validator 
+to validate incoming data for our express api 
+the reason why this imp because sometimes the data that you are expect (as a sever) the data is not that you receive 
+you want to create a user and save it to data base so usally need post request with endpoint (api address) / url path to create user 
+the post req except request body, and we make sure the username is not over 32-char 
+we are expecting that but client send different but we have to make sure you check to see if username is 32char or less 
+if i am validating on client side (react / ui ) beform i click on that form create button 
+the sever side valiation is still needed because api your express application doesnot know from where that data is comming from 
+the server side validation is more imp that client side bacause actually sever side is the one that processing that data, storing data in databse,updating  
