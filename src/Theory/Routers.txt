@@ -1,2 +1,103 @@
 theory of routers:-
-routers is  
+A Router in Express.js is like a mini Express application that helps us organize routes in separate files. 
+
+“Express Router is a built-in feature of Express.js that allows us to create modular, mountable route handlers. It helps us separate routes into different files based on features like users, products, auth, etc., making the code more maintainable and scalable.”
+
+
+Problem:
+File becomes huge
+Hard to maintain
+Difficult in large projects
+Benefits:
+Feature-wise separation
+Easy debugging
+Easy team collaboration
+Cleaner architecture
+
+
+How routers work internally ?
+Request hits the Express app
+Express checks the mounted path using app.use()
+If path matches, request is forwarded to that router
+Router checks the specific HTTP method and sub-path
+Matching route handler runs
+
+What is express.Router()?
+express.Router() creates a new router object.
+It provides methods like:
+router.get()
+router.post()
+router.put()
+router.patch()
+router.delete()
+router.use()
+
+
+Difference Between app and router
+app
+Main Express application
+Used for global middleware and mounting routers
+Starts the server
+router
+Mini app for grouping related routes
+Used inside route files
+Cannot start server
+app is the main Express instance, while router is a mini modular route handler used to separate feature-specific endpoints.
+
+
+
+Router-Level Middleware
+Middleware can be applied only to a specific router.
+
+
+
+Use cases:
+Authentication for user routes
+Logging
+Validation
+
+
+
+
+Chaining Routes with router.route()
+Used to write cleaner REST API routes.
+router
+  .route("/")
+  .get(getAllUsers)
+  .post(createUser);
+router
+  .route("/:id")
+  .get(getUserById)
+  .put(updateUser)
+  .delete(deleteUser);
+✅ Benefits:
+Cleaner code
+RESTful structure
+Easier to read in interviews
+“router.route() allows method chaining for the same path, making REST APIs cleaner and more maintainable.”
+
+
+Separate concerns:-
+Structure:
+routes/
+controllers/
+services/
+models/
+middlewares/
+
+
+
+project/
+│
+├── routes/
+│   ├── userRoutes.js
+│   ├── productRoutes.js
+│
+├── controllers/
+│   ├── userController.js
+│   ├── productController.js
+│
+├── models/
+├── middlewares/
+├── app.js
+└── server.js

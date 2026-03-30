@@ -3,43 +3,59 @@ import users from "./data/users.js";
 
 import { validationResult } from "express-validator";
 
+import cookieParser from "cookie-parser";
 
 // the express is imported using ('express') and app instance is created with express()
 // a route is defined using app.get() method , which responds with message
 const PORT = process.env.PORT || 3000;
 const app = express();
 app.use(express.json());
+app.use(cookieParser("mysecretkey"));
 
 
 
 
-// middleware :-
-// middleware is a function that runs between the request and response cycle. It can modify the request and response objects, end the request-response cycle, or call the next middleware in the stack.
-// middleware is used for various purposes like authentication, logging, error handling, parsing request bodies, etc.
-// In Express, you can use app.use() to apply middleware globally to all routes, or you can apply it to specific routes by passing it as an argument to the route handler.
 
-// app.use(()=>{},()={})
-// we can pass as many as middleware as we want in app.use() and in route handler as well
+// simple get request for testing :-
+// since the route that set the cookie a this the route that you must visit first in order for you to authenticate have the cookie set the cookie on sever and then send back to client/browser
+// then you can access some protected route that require cookie for authentication and authorization and you can access the cookie in that route handler and check if the cookie is present and valid or not and then send response accordingly
+// then when you will make request to the from any route that
+app.get("/", (req, res) => {
+  // cookie:-
+  res.cookie("mycookieName", "thisisCookieValue", {
+    maxAge: 10000, // 10 sec
+    // httpOnly: true,
+    signed: true, // this will sign the cookie with a secret key and it will be stored in the cookie as well and when the client send the cookie back to the server then the server can verify the cookie using the secret key and if the cookie is valid then it will be accepted otherwise it will be rejected
+    // app.use(cookieParser("mysecretkey"))
+  });
+  res.status(200).send({ message: "Hello from server" });
+});
+// Server will:
+// Send a cookie to browser:
+// Name → mycookieName
+// Value → thisisCookieValue
+// Cookie settings:
+// maxAge: 60000 * 60 → cookie expires after 1 hour
+// httpOnly: true → JavaScript cannot access it (document.cookie cannot read it)
 
-// example of custom middleware for logging:-
-// const loggerMiddleware = (req, res, next) => {
-//   console.log(`${req.method} and ${req.url}`);
-//   console.log(`Response: ${res.statusCode}`);
-//   // console.log(`Response: ${res.statusMessage}`);
-//   // next();
-//   // if we didnt call next() then the request will be stuck in the middleware and it willl never reach the route handler/ or next middleware and the server will not send any response to the client and it will be a bad user experience
-// };
 
-// instead of writing this loggerMiddleware for every route we can use app.use() to apply it globally to all routes
-// app.use(loggerMiddleware);
-// if i want to apply this Middleware only for specific route then i can pass it as an argument to the route handler like this
-// app.get("/api/v1/some-route", loggerMiddleware, (req, res) => {}
 
-// this is the exmple of multiple middleware for single route:-
-// if we didnt apply next() in any of the middleware then the request will be stuck in that middleware and it will never reach the route handler/ or next middleware and the server will not send any response to the client and it will be a bad user experience
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 app.get(
-  "/justgetrequest",
+  "/justgetrequestt",
   (req, res, next) => {
     console.log(`here we will get the request method: ${req.method}`);
     next();
@@ -94,10 +110,6 @@ export function validateRequest(req, res, next) {
   next();
 }
 
-
-
-
-
 // // routers for user  :-
 // app.use("/api/v1/user", userGetRouter);
 // app.use("/api/v1/user", userPostRouter);
@@ -112,19 +124,6 @@ export function validateRequest(req, res, next) {
 import router from "./Routes/routes.js";
 app.use(router);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 // start the server:-
 // app.listen() method starts the server and listen on port for incoming requests
 app.listen(PORT, (error) => {
@@ -134,5 +133,3 @@ app.listen(PORT, (error) => {
     console.log("error occured , server cant start ", error);
   }
 });
-
-

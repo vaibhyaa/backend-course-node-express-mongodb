@@ -35,7 +35,7 @@ const router = Router();
 // v1 is optionl (just info about first version of apis )
 router.get("/allusers", (req, res) => {
   // this is the request handler
-  res.status(201).send(users);
+  res.status(200).send(users);
 });
 
 

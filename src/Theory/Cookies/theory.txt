@@ -1,0 +1,160 @@
+Http cookies :-
+they are just small piece of data that your webserver send to browser.
+A cookie is a small piece of data stored by the browser and sent automatically with future requests to the same server/domain.
+Server sends cookie to browser
+Browser stores it
+Browser automatically sends it back in next requests
+
+
+A cookie is a small data file stored in the client’s browser by the server. It is used to store information such as session IDs, authentication tokens, user preferences, and tracking data. The browser automatically includes cookies in subsequent requests to the same domain.”
+
+
+Why do we need Cookies?
+HTTP is stateless.
+That means:
+Every request is independent
+Server does not remember previous request automatically
+So cookies help us maintain state between requests.
+Example:
+User logs in
+Server sets a cookie like token=abc123
+Browser stores it
+Next request automatically sends that cookie
+Server identifies user
+
+
+
+Real-Life Example
+Imagine:
+You log into a website
+After refreshing page, you are still logged in
+Why?
+Because browser stored a cookie (or session cookie / JWT cookie), and it is sent with every request.
+
+
+
+How Cookies Work (Step-by-Step)
+Flow:
+Client sends login request
+Server verifies credentials
+Server sends response with Set-Cookie header
+Browser stores cookie
+On future requests, browser sends cookie in Cookie header
+Server reads cookie and identifies user/session
+
+
+Important Headers
+Server sends:
+Set-Cookie: token=abc123
+Browser sends later:
+Cookie: token=abc123
+👉 This is very important for interview.
+
+
+Types of Cookies
+1. Session Cookie
+Temporary
+Stored until browser is closed
+No explicit expiration time
+Use case:
+Temporary login session
+2. Persistent Cookie
+Has expiry date / max age
+Remains even after browser closes
+Use case:
+“Remember me”
+Theme preference
+Language preference
+3. HttpOnly Cookie
+Cannot be accessed by JavaScript (document.cookie)
+Only browser and server can use it
+Use case:
+Secure auth token storage
+✅ Safer against XSS
+4. Secure Cookie
+Sent only over HTTPS
+Not sent on normal HTTP
+Use case:
+Production auth systems
+SameSite Cookie
+Controls cross-site cookie sending.
+Values:
+Strict
+Lax
+None
+Used for CSRF protection.
+
+
+
+Common Cookie Use Cases
+Cookies are used for:
+Authentication (JWT / session ID)
+Remember login
+User preferences (theme, language)
+Shopping cart
+Tracking / analytics
+Session management
+
+
+Cookies in Express.js
+To work with cookies easily in Express, we often use:
+res.cookie() → set cookie
+res.clearCookie() → remove cookie
+cookie-parser middleware → read cookies from req.cookies
+
+
+In production, authentication cookies should usually use httpOnly, secure, and sameSite to improve security. httpOnly prevents JavaScript access, secure ensures HTTPS-only transmission, and sameSite helps reduce CSRF risks.
+
+
+Cookies vs Local Storage (Very Important Interview Question):-
+Cookies
+Sent automatically with every request
+Small size (~4KB)
+Can be httpOnly
+Good for auth/session
+Local Storage
+Stored only in browser
+Not sent automatically to server
+Accessible by JavaScript
+Larger storage (~5MB+)
+Good for UI preferences, cached data
+
+Cookies are better for authentication because they can be made httpOnly and are automatically sent with requests. Local storage is easier to use on the frontend but is vulnerable to XSS because JavaScript can access it.
+
+
+
+Cookies vs Sessions:-
+Cookie
+Stored in browser
+Contains data (or session ID)
+Session
+Usually stored on server
+Browser stores only session ID in a cookie
+Flow:
+Server creates session
+Stores session data server-side
+Sends session ID in cookie
+Browser sends session ID back
+Server finds session
+
+Cookies vs JWT
+JWT in Cookie
+Server stores JWT in cookie
+Browser auto-sends it
+Can use httpOnly
+JWT in Local Storage
+Frontend manually sends token in Authorization header
+Easier but more exposed to XSS
+
+
+
+JWT can be stored in cookies or local storage, but storing JWT in an httpOnly cookie is generally more secure for many applications
+
+
+
+
+Very Important: Cookies in Cross-Origin Requests (Frontend + Backend)
+In MERN apps, frontend and backend often run on different ports/domains:
+Frontend → http://localhost:5173
+Backend → http://localhost:3000
+In this case cookies need special handling.
