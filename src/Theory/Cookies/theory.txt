@@ -158,3 +158,12 @@ In MERN apps, frontend and backend often run on different ports/domains:
 Frontend → http://localhost:5173
 Backend → http://localhost:3000
 In this case cookies need special handling.
+
+
+
+
+
+If interviewer asks:
+Why is new session created every request even though express-session is configured correctly?
+You can say:
+Because express-session uses the connect.sid cookie to identify an existing session. If the client does not send that cookie back on the next request, the server cannot find the previous session in the session store, so it creates a new session and generates a new session ID.

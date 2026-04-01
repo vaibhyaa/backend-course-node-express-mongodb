@@ -3,7 +3,6 @@ import users from "../../data/users.js";
 import { param, query, validationResult } from "express-validator";
 import { validateUserIdMiddleware } from "../../server.js";
 
-
 const router = Router();
 // console.log(router);
 
@@ -30,19 +29,37 @@ const router = Router();
 
 
 
+
 // GET:-
 // industry standard to start with /api/v1/..
 // v1 is optionl (just info about first version of apis )
+// router.get("/allusers", (req, res) => {
+//   // console.log(req.session);
+//   console.log(req.sessionID);
+//   console.log(
+//     req.sessionStore.get(req.sessionID, (error, sessionData) => {
+//       if (error) {
+//         console.log("Error retrieving session data:", error);
+//       } else {
+//         console.log("Session data retrieved successfully:", sessionData);
+//       }
+//     }),
+//   );
+
+//   // this is the request handler
+//   res.status(200).send(users);
+// });
+
+
 router.get("/allusers", (req, res) => {
-  // this is the request handler
-  res.status(200).send(users);
+  // console.log(req.sessionID);
+  // console.log(req.session);
+  
+  res.status(200).json({
+    message: "All users fetched successfully",
+    users,
+  });
 });
-
-
-
-
-
-
 
 // QUERY PARAMS:-
 // http://localhost:3000/api/v1/user/sorted?key=values&key2=values2
@@ -137,39 +154,31 @@ router.get(
   },
 );
 
-
-
-
-
-
-
 // ROUTE parameters :-
 router.get(
   "/:userId",
   param("userId")
-	.notEmpty()
-	.withMessage("userId is required")
-	.isInt({ min: 1, max: 100 })
-	.withMessage("userId is required and should be a number between 1 and 100"),
+    .notEmpty()
+    .withMessage("userId is required")
+    .isInt({ min: 1, max: 100 })
+    .withMessage("userId is required and should be a number between 1 and 100"),
   validateUserIdMiddleware,
   (req, res) => {
-	const result = validationResult(req);
-	if (!result.isEmpty()) {
-	  return res.status(400).json({
-		errors: result.array().map((eachError) => ({ message: eachError.msg })),
-	  });
-	}
-	const { findUserIndex } = req;
-	const findUser = users[findUserIndex];
-	console.log(findUser);
+    const result = validationResult(req);
+    if (!result.isEmpty()) {
+      return res.status(400).json({
+        errors: result.array().map((eachError) => ({ message: eachError.msg })),
+      });
+    }
+    const { findUserIndex } = req;
+    const findUser = users[findUserIndex];
+    console.log(findUser);
 
-	if (findUser === -1) {
-	  res.sendStatus(404);
-	}
-	res.status(200).send(findUser);
+    if (findUser === -1) {
+      res.sendStatus(404);
+    }
+    res.status(200).send(findUser);
   },
 );
-
-
 
 export default router;

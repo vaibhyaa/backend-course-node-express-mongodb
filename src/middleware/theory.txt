@@ -22,3 +22,29 @@
 
 // this is the exmple of multiple middleware for single route:-
 // if we didnt apply next() in any of the middleware then the request will be stuck in that middleware and it will never reach the route handler/ or next middleware and the server will not send any response to the client and it will be a bad user experience
+
+
+
+
+
+
+// app.get(
+//   "/justgetrequestt",
+//   (req, res, next) => {
+//     console.log(`here we will get the request method: ${req.method}`);
+//     next();
+//     // here in first middleware we are logging the request method and then calling next() to pass the control to the next middleware in the stack (↓)
+//   },
+//   (req, res, next) => {
+//     console.log(`here we will get the request url: ${req.url}`);
+//     // here in second middleware we are logging the request url and not calling next()  so the request will be stuck in this middleware and it will never reach the route handler/ or next middleware and the server will not send any response to the client
+//     // instead of next()  if we send response here from sever then also the request will be end here and it will never reach the route handler/ or next middleware and the server will send response to the clien
+//     // because we want to end the request-response cycle here and send the response back to the client
+//     // so basically if we want to end the request-response cycle in any middleware then we can send response from that middleware and we dont need to call next() because next() is used to pass the control
+//     // if we want to pass the control to the next middleware in the stack then we need to call next() and if we want to end the request-response cycle in any middleware then we can send response from that middleware and we dont need to call next() because next() is used to pass the control
+//     res.status(200).send({ message: "Hello from server" });
+//   },
+//   // (req, res, next) => {
+//   //   res.status(200).send({ message: "Hello from server" });
+//   // },
+// );
