@@ -1,51 +1,40 @@
 import { Router } from "express";
-import { matchedData, param, validationResult } from "express-validator";
-import { validateRequest, validateUserIdMiddleware } from "../../server.js";
 import users from "../../data/users.js";
+import { validateRequest } from "../../middleware/validateRequest.js";
+import { validateUserIdMiddleware } from "../../middleware/validateUserIdMiddleware.js";
 
+import { body, param } from "express-validator";
+import { updateUserFull } from "../../controller/UserController/updateUserFull.controller.js";
 
 const router = Router();
-
 
 // PUT request :-
 // not updating the small portion of request but updating the entire request
 // updating the entire record
+
+// PUT
+// Usually used for full update
+// All updatable fields should be sent
+// Use .notEmpty() for required updatable fields
+// PATCH
+// Used for partial update
+// Fields are optional
+// Use .optional() + type validation
+
 router.put(
   "/:userId",
-  param("userId")
-    .notEmpty()
-    .withMessage("userId is required")
-    .isInt({ min: 1, max: 100 })
-    .withMessage("userId is required and should be a number between 1 and 100"),
+  // BECAUSE NAME AND AGE WILL NOT ABLE ABLE TO CHANGE EVEN IF WE PASS WE WILL DELETE THAT FROM OBJECT AND IGNORED
+  param("userId").notEmpty().isInt(),
+  body("phoneNumber").notEmpty().isString(),
+  body("address").notEmpty().isObject(),
+  body("address.city").notEmpty().isString(),
+  body("address.state").notEmpty().isString(),
+  body("address.pincode").notEmpty().isString(),
+  body("isMarried").notEmpty().isBoolean(),
+  body("isEmployed").notEmpty().isBoolean(),
   validateRequest,
   validateUserIdMiddleware,
-  (req, res) => {
-    // validation
-    const result = validationResult(req);
-    if (!result.isEmpty()) {
-      return res.status(400).json({
-        errors: result.array().map((eachError) => ({ message: eachError.msg })),
-      });
-    }
-    const {
-      params: { userId },
-      findUserIndex,
-    } = req;
-    const bodyData = matchedData(req);
-    // still here need the req.body and req.params.userId because we need to update the user with the id which is coming from route param and we need the body to update the user
-    // console.log(users[findUserIndex]);
-    users[findUserIndex] = {
-      // id: users[findUserIndex].id, //
-      id: parseInt(userId),
-      // id: parsedId,
-      ...bodyData, // replace full user
-    };
-    return res.status(200).json({
-      message: "User updated successfully",
-      data: users[findUserIndex],
-    });
-  },
+  updateUserFull,
 );
-
 
 export default router;

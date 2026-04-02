@@ -7,3 +7,72 @@ we are expecting that but client send different but we have to make sure you che
 if i am validating on client side (react / ui ) beform i click on that form create button 
 the sever side valiation is still needed because api your express application doesnot know from where that data is comming from 
 the server side validation is more imp that client side bacause actually sever side is the one that processing that data, storing data in databse,updating  
+
+
+
+What matchedData(req) does exactly
+It returns only those fields from request that were part of your validation/sanitization chain.
+In simple words:
+
+👉 It filters req.body and keeps only the validated fields.
+🔹 Think of it like this
+
+Suppose client sends:
+{
+  "name": "Vaibhav",
+  "age": 24,
+  "phoneNumber": "9876543210",
+  "address": {
+    "city": "Pune"
+  },
+  "hackField": "I should not be saved"
+}
+
+And your validators are only:
+body("name")
+body("age")
+body("phoneNumber")
+Then:
+req.body contains everything:
+{
+  name: "Vaibhav",
+  age: 24,
+  phoneNumber: "9876543210",
+  address: { city: "Pune" },
+  hackField: "I should not be saved"
+}
+But matchedData(req) returns only:
+{
+  name: "Vaibhav",
+  age: 24,
+  phoneNumber: "9876543210"
+}
+
+✅ address removed
+✅ hackField removed
+
+Because you did not validate them.
+
+
+
+
+
+
+Short answer
+matchedData(req) and Mongoose schema required are 2 different layers
+matchedData(req) → filters request data before save
+Mongoose schema required → checks data during save
+
+👉 They do different jobs
+
+
+
+Important concept
+1) matchedData(req) = Express layer
+It says:
+“I will only keep fields that were validated in express-validator.”
+It does NOT care what your database schema requires.
+
+2) Mongoose schema = Database/model layer
+It says:
+“Before saving, I will check if all required fields are present.”
